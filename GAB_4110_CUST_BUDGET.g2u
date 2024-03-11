@@ -1,0 +1,446 @@
+Program.Sub.ScreenSU.Start
+Gui.frmBudget..Create
+Gui.frmBudget..Caption("Customer Budget Entry")
+Gui.frmBudget..Size(7395,2160)
+Gui.frmBudget..MinX(0)
+Gui.frmBudget..MinY(0)
+Gui.frmBudget..Position(0,0)
+Gui.frmBudget..BackColor(-2147483633)
+Gui.frmBudget..MousePointer(0)
+Gui.frmBudget..Event(UnLoad,Unload)
+Gui.frmBudget.ddlYear.Create(DropDownList)
+Gui.frmBudget.ddlYear.Size(1815,330)
+Gui.frmBudget.ddlYear.Position(270,480)
+Gui.frmBudget.ddlYear.Event(Click,Return_Budget)
+Gui.frmBudget.ddlMonth.Create(DropDownList)
+Gui.frmBudget.ddlMonth.Size(1815,330)
+Gui.frmBudget.ddlMonth.Position(2610,480)
+Gui.frmBudget.ddlMonth.Event(Click,Return_Budget)
+Gui.frmBudget.txtBudget.Create(TextBox,"",True,1770,300,0,4905,510,True,0,"Arial",8,-2147483643,1)
+Gui.frmBudget.txtBudget.DefaultValue("Enter Budget")
+Gui.frmBudget.txtBudget.NumericOnly(True)
+Gui.frmBudget.lblYear.Create(Label,"Year",True,1800,255,0,255,240,True,0,"Arial",8,-2147483633,0)
+Gui.frmBudget.lblMonth.Create(Label,"Month",True,1815,255,0,2580,240,True,0,"Arial",8,-2147483633,0)
+Gui.frmBudget.lblBudget.Create(Label,"Budget",True,1935,255,0,4860,240,True,0,"Arial",8,-2147483633,0)
+Gui.frmBudget.cmd1.Create(Button)
+Gui.frmBudget.cmd1.Size(855,375)
+Gui.frmBudget.cmd1.Position(285,1035)
+Gui.frmBudget.cmd1.Caption("Save")
+Gui.frmBudget.cmd1.Event(Click,cmdUpdate_Click)
+Gui.frmBudget.cmd2.Create(Button)
+Gui.frmBudget.cmd2.Size(855,375)
+Gui.frmBudget.cmd2.Position(5850,1050)
+Gui.frmBudget.cmd2.Caption("Cancel")
+Gui.frmBudget.cmd2.Event(Click,Unload)
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+Program.Sub.Preflight.End
+
+Program.Sub.Main.Start
+
+Variable.Global.sCustomer.Declare(String)
+V.Local.bTableRet.Declare(Boolean)
+V.Local.sSQL.Declare(String)
+V.Local.iYear.Declare(Long)
+V.Local.iMonth.Declare(Long)
+V.Local.iIndex.Declare(Long,0)
+V.Local.sMonth.Declare(String)
+
+'Change Script 3 button text
+F.Intrinsic.Control.If(V.Caller.Hook,=,14350)
+	V.Passed.000203.Set("Sales Budget")
+	F.Intrinsic.Control.End
+
+F.Intrinsic.Control.EndIf
+
+'V.Global.sCustomer.Set("001000")
+V.Global.sCustomer.Set(V.Passed.000002)
+
+F.ODBC.Connection!conx.OpenConnection(V.Ambient.PDSN,V.Ambient.PUser,V.Ambient.PPass)
+
+'Create GAB_####_CUST_BDGT table
+F.Intrinsic.Control.CallSub(CreateTable)
+
+'Set Years for ddlYear
+F.Intrinsic.Control.For(V.Local.iYear,2010,2030,1)
+	F.Intrinsic.Math.Add(V.Local.iIndex,1,V.Local.iIndex)
+	Gui.frmBudget.ddlYear.AddItem(V.Local.iYear,V.Local.iIndex)
+F.Intrinsic.Control.Next(V.Local.iYear)
+
+'Set Months for ddlMonth
+F.Intrinsic.Control.For(V.Local.iMonth,0,12,1)
+	F.Intrinsic.Control.SelectCase(V.Local.iMonth)
+		F.Intrinsic.Control.Case(0)
+			V.Local.sMonth.Set("Entire Year")
+			Gui.frmBudget.ddlMonth.AddItem(V.Local.sMonth,V.Local.iMonth)
+		F.Intrinsic.Control.Case(1)
+			V.Local.sMonth.Set("January")
+			Gui.frmBudget.ddlMonth.AddItem(V.Local.sMonth,V.Local.iMonth)
+		F.Intrinsic.Control.Case(2)
+			V.Local.sMonth.Set("February")
+			Gui.frmBudget.ddlMonth.AddItem(V.Local.sMonth,V.Local.iMonth)
+		F.Intrinsic.Control.Case(3)
+			V.Local.sMonth.Set("March")
+			Gui.frmBudget.ddlMonth.AddItem(V.Local.sMonth,V.Local.iMonth)
+		F.Intrinsic.Control.Case(4)
+			V.Local.sMonth.Set("April")
+			Gui.frmBudget.ddlMonth.AddItem(V.Local.sMonth,V.Local.iMonth)
+		F.Intrinsic.Control.Case(5)
+			V.Local.sMonth.Set("May")
+			Gui.frmBudget.ddlMonth.AddItem(V.Local.sMonth,V.Local.iMonth)
+		F.Intrinsic.Control.Case(6)
+			V.Local.sMonth.Set("June")
+			Gui.frmBudget.ddlMonth.AddItem(V.Local.sMonth,V.Local.iMonth)
+		F.Intrinsic.Control.Case(7)
+			V.Local.sMonth.Set("July")
+			Gui.frmBudget.ddlMonth.AddItem(V.Local.sMonth,V.Local.iMonth)
+		F.Intrinsic.Control.Case(8)
+			V.Local.sMonth.Set("August")
+			Gui.frmBudget.ddlMonth.AddItem(V.Local.sMonth,V.Local.iMonth)
+		F.Intrinsic.Control.Case(9)
+			V.Local.sMonth.Set("September")
+			Gui.frmBudget.ddlMonth.AddItem(V.Local.sMonth,V.Local.iMonth)
+		F.Intrinsic.Control.Case(10)
+			V.Local.sMonth.Set("October")
+			Gui.frmBudget.ddlMonth.AddItem(V.Local.sMonth,V.Local.iMonth)
+		F.Intrinsic.Control.Case(11)
+			V.Local.sMonth.Set("November")
+			Gui.frmBudget.ddlMonth.AddItem(V.Local.sMonth,V.Local.iMonth)
+		F.Intrinsic.Control.Case(12)
+			V.Local.sMonth.Set("December")
+			Gui.frmBudget.ddlMonth.AddItem(V.Local.sMonth,V.Local.iMonth)
+		F.Intrinsic.Control.EndSelect
+		F.Intrinsic.Math.Add(V.Local.iIndex,1,V.Local.iIndex)
+	'Gui.frmBudget.ddlMonth.AddItem(V.Local.sMonth,V.Local.iMonth)
+F.Intrinsic.Control.Next(V.Local.iMonth)
+
+
+Gui.frmBudget..Show
+
+Program.Sub.Main.End
+
+Program.Sub.CreateTable.Start
+V.Local.sSQL.Declare(String)
+V.Local.bTableRet.Declare(Boolean)
+
+F.ODBC.Connection!conx.TableExists("GAB_4110_CUST_BDGT",V.Local.bTableRet)
+'If Table does not exist
+F.Intrinsic.Control.If(V.Local.bTableRet,=,False)
+	V.Local.sSQL.Set("CREATE TABLE GAB_4110_CUST_BDGT (CUSTOMER CHAR(6), YEAR INT, BDGT_JAN FLOAT, BDGT_FEB FLOAT, BDGT_MAR FLOAT, BDGT_APR FLOAT,")
+	F.Intrinsic.String.Concat(V.Local.sSQL, " BDGT_MAY FLOAT, BDGT_JUN FLOAT, BDGT_JUL FLOAT, BDGT_AUG FLOAT, BDGT_SEP FLOAT, BDGT_OCT FLOAT, BDGT_NOV FLOAT, BDGT_DEC FLOAT)", V.Local.sSQL)
+	F.ODBC.Connection!conx.Execute(V.Local.sSQL)
+	F.ODBC.Connection!conx.TableExists("GAB_4110_CUST_BDGT",V.Local.bTableRet)
+	F.Intrinsic.Control.If(V.Local.bTableRet,=,False)
+		F.Intrinsic.UI.Msgbox("Table does not exist and cannot be created.", "Warning!")
+		F.Intrinsic.Control.CallSub(unload)
+	F.Intrinsic.Control.EndIf
+F.Intrinsic.Control.EndIf
+Program.Sub.CreateTable.End
+
+Program.Sub.Unload.Start
+'Close db connection and program
+F.ODBC.Connection!conx.Close
+F.Intrinsic.Control.End
+
+Program.Sub.Unload.End
+
+Program.Sub.cmdUpdate_Click.Start
+V.Local.sSQL.Declare(String)
+V.Local.iYear.Declare(Long)
+V.Local.iMonth.Declare(String)
+V.Local.fBudget.Declare(Float)
+V.Local.sSQLUPD.Declare(String)
+V.Local.sMonth.Declare(String)
+V.Local.iTemp.Declare(Long)
+
+V.Local.iYear.Set(V.Screen.frmBudget!ddlYear.Text)
+V.Local.iMonth.Set(V.Screen.frmBudget!ddlMonth.Text)
+V.Local.fBudget.Set(V.Screen.frmBudget!txtBudget.Text)
+
+
+'Input validation; Check both Year and Month
+F.Intrinsic.Control.If(V.Local.iYear,=,"")
+	F.Intrinsic.Control.AndIf(V.Local.iMonth,=,"")
+		F.Intrinsic.UI.Msgbox("Please select a valid Year and Month from the drop-downs.","Missing information:")
+F.Intrinsic.Control.ElseIf(V.Local.iYear,=,"")
+	F.Intrinsic.UI.Msgbox("Please select a valid Year from the drop-down.","Missing information:")
+F.Intrinsic.Control.ElseIf(V.Local.iMonth,=,"")
+	F.Intrinsic.UI.Msgbox("Please select a valid Month from the drop-down.","Missing information:")
+F.Intrinsic.Control.ElseIf(V.Local.fBudget,=,0)
+	F.Intrinsic.UI.Msgbox("No budget set. Budget will be saved as $0","Invalid input:")
+F.Intrinsic.Control.Else
+	F.Intrinsic.UI.InvokeWaitDialog("Updating table....", "Loading...")
+
+	F.Intrinsic.Control.SelectCase(V.Local.iMonth)
+		F.Intrinsic.Control.Case("January")
+			V.Local.sMonth.Set("BDGT_JAN")
+		F.Intrinsic.Control.Case("February")
+			V.Local.sMonth.Set("BDGT_FEB")
+		F.Intrinsic.Control.Case("March")
+			V.Local.sMonth.Set("BDGT_MAR")
+		F.Intrinsic.Control.Case("April")
+			V.Local.sMonth.Set("BDGT_APR")
+		F.Intrinsic.Control.Case("May")
+			V.Local.sMonth.Set("BDGT_MAY")
+		F.Intrinsic.Control.Case("June")
+			V.Local.sMonth.Set("BDGT_JUN")
+		F.Intrinsic.Control.Case("July")
+			V.Local.sMonth.Set("BDGT_JUL")
+		F.Intrinsic.Control.Case("August")
+			V.Local.sMonth.Set("BDGT_AUG")
+		F.Intrinsic.Control.Case("September")
+			V.Local.sMonth.Set("BDGT_SEP")
+		F.Intrinsic.Control.Case("October")
+			V.Local.sMonth.Set("BDGT_OCT")
+		F.Intrinsic.Control.Case("November")
+			V.Local.sMonth.Set("BDGT_NOV")
+		F.Intrinsic.Control.Case("December")
+			V.Local.sMonth.Set("BDGT_DEC")
+	F.Intrinsic.Control.EndSelect
+
+	'Open record set from GAB table
+	F.Intrinsic.String.Build("SELECT * FROM GAB_4110_CUST_BDGT WHERE CUSTOMER = '{0}'",V.Global.sCustomer,V.Local.sSQL)
+	F.ODBC.Connection!conx.OpenLocalRecordsetRW("rstBdgt",V.Local.sSQL)
+	'If Rst empty, insert record
+	F.Intrinsic.Control.If(V.ODBC.conx!rstBdgt.EOF,=,True)
+		'If Entire Year is to be set
+		F.Intrinsic.Control.If(V.Local.iMonth,=,"Entire Year")
+			'cycle through months setting values
+			F.Intrinsic.Control.For(V.Local.iTemp,1,12,1)
+				F.Intrinsic.Control.SelectCase(V.Local.iTemp)
+					F.Intrinsic.Control.Case(1)
+						F.Intrinsic.String.Build("INSERT INTO GAB_4110_CUST_BDGT (CUSTOMER, YEAR, BDGT_JAN) VALUES ('{0}', '{1}', {2})",V.Global.sCustomer,V.Local.iYear,V.Local.fBudget,V.Local.sSQLUPD)
+						F.ODBC.Connection!conx.Execute(V.Local.sSQLUPD)
+					F.Intrinsic.Control.Case(2)
+						F.Intrinsic.String.Build("UPDATE GAB_4110_CUST_BDGT SET BDGT_FEB = {0} WHERE CUSTOMER = '{1}' AND YEAR = '{2}'",V.Local.fBudget,V.Global.sCustomer,V.Local.iYear,V.Local.sSQLUPD)
+						F.ODBC.Connection!conx.Execute(V.Local.sSQLUPD)
+					F.Intrinsic.Control.Case(3)
+						F.Intrinsic.String.Build("UPDATE GAB_4110_CUST_BDGT SET BDGT_MAR = {0} WHERE CUSTOMER = '{1}' AND YEAR = '{2}'",V.Local.fBudget,V.Global.sCustomer,V.Local.iYear,V.Local.sSQLUPD)
+						F.ODBC.Connection!conx.Execute(V.Local.sSQLUPD)
+					F.Intrinsic.Control.Case(4)
+						F.Intrinsic.String.Build("UPDATE GAB_4110_CUST_BDGT SET BDGT_APR = {0} WHERE CUSTOMER = '{1}' AND YEAR = '{2}'",V.Local.fBudget,V.Global.sCustomer,V.Local.iYear,V.Local.sSQLUPD)
+						F.ODBC.Connection!conx.Execute(V.Local.sSQLUPD)
+					F.Intrinsic.Control.Case(5)
+						F.Intrinsic.String.Build("UPDATE GAB_4110_CUST_BDGT SET BDGT_MAY = {0} WHERE CUSTOMER = '{1}' AND YEAR = '{2}'",V.Local.fBudget,V.Global.sCustomer,V.Local.iYear,V.Local.sSQLUPD)
+						F.ODBC.Connection!conx.Execute(V.Local.sSQLUPD)
+					F.Intrinsic.Control.Case(6)
+						F.Intrinsic.String.Build("UPDATE GAB_4110_CUST_BDGT SET BDGT_JUN = {0} WHERE CUSTOMER = '{1}' AND YEAR = '{2}'",V.Local.fBudget,V.Global.sCustomer,V.Local.iYear,V.Local.sSQLUPD)
+						F.ODBC.Connection!conx.Execute(V.Local.sSQLUPD)
+					F.Intrinsic.Control.Case(7)
+						F.Intrinsic.String.Build("UPDATE GAB_4110_CUST_BDGT SET BDGT_JUL = {0} WHERE CUSTOMER = '{1}' AND YEAR = '{2}'",V.Local.fBudget,V.Global.sCustomer,V.Local.iYear,V.Local.sSQLUPD)
+						F.ODBC.Connection!conx.Execute(V.Local.sSQLUPD)
+					F.Intrinsic.Control.Case(8)
+						F.Intrinsic.String.Build("UPDATE GAB_4110_CUST_BDGT SET BDGT_AUG = {0} WHERE CUSTOMER = '{1}' AND YEAR = '{2}'",V.Local.fBudget,V.Global.sCustomer,V.Local.iYear,V.Local.sSQLUPD)
+						F.ODBC.Connection!conx.Execute(V.Local.sSQLUPD)
+					F.Intrinsic.Control.Case(9)
+						F.Intrinsic.String.Build("UPDATE GAB_4110_CUST_BDGT SET BDGT_SEP = {0} WHERE CUSTOMER = '{1}' AND YEAR = '{2}'",V.Local.fBudget,V.Global.sCustomer,V.Local.iYear,V.Local.sSQLUPD)
+						F.ODBC.Connection!conx.Execute(V.Local.sSQLUPD)
+					F.Intrinsic.Control.Case(10)
+						F.Intrinsic.String.Build("UPDATE GAB_4110_CUST_BDGT SET BDGT_OCT = {0} WHERE CUSTOMER = '{1}' AND YEAR = '{2}'",V.Local.fBudget,V.Global.sCustomer,V.Local.iYear,V.Local.sSQLUPD)
+						F.ODBC.Connection!conx.Execute(V.Local.sSQLUPD)
+					F.Intrinsic.Control.Case(11)
+						F.Intrinsic.String.Build("UPDATE GAB_4110_CUST_BDGT SET BDGT_NOV = {0} WHERE CUSTOMER = '{1}' AND YEAR = '{2}'",V.Local.fBudget,V.Global.sCustomer,V.Local.iYear,V.Local.sSQLUPD)
+						F.ODBC.Connection!conx.Execute(V.Local.sSQLUPD)
+					F.Intrinsic.Control.Case(12)
+						F.Intrinsic.String.Build("UPDATE GAB_4110_CUST_BDGT SET BDGT_DEC = {0} WHERE CUSTOMER = '{1}' AND YEAR = '{2}'",V.Local.fBudget,V.Global.sCustomer,V.Local.iYear,V.Local.sSQLUPD)
+						F.ODBC.Connection!conx.Execute(V.Local.sSQLUPD)
+				F.Intrinsic.Control.EndSelect
+			F.Intrinsic.Control.Next(V.Local.iTemp)
+			F.Intrinsic.UI.Msgbox("Successfully updated.")
+			F.Intrinsic.UI.CloseWaitDialog
+			F.Intrinsic.Control.ExitSub
+		F.Intrinsic.Control.Else
+			F.Intrinsic.String.Build("INSERT INTO GAB_4110_CUST_BDGT (CUSTOMER, YEAR, {0}) VALUES ('{1}', '{2}', {3})", V.Local.sMonth,V.Global.sCustomer,V.Local.iYear,V.Local.fBudget,V.Local.sSQLUPD)
+			F.ODBC.Connection!conx.Execute(V.Local.sSQLUPD)
+			F.Intrinsic.UI.CloseWaitDialog
+			F.Intrinsic.UI.Msgbox("Successfully updated.")
+			F.Intrinsic.UI.CloseWaitDialog
+			F.Intrinsic.Control.ExitSub
+		F.Intrinsic.Control.EndIf
+
+
+	'Else loop through Rst to determine if Customer already has a budget input for that year
+	F.Intrinsic.Control.Else	
+		F.Intrinsic.Control.DoUntil(V.ODBC.conx!rstBdgt.EOF,=,True)
+			F.Intrinsic.Control.If(V.ODBC.conx!rstBdgt.FieldVal!YEAR,=,V.Local.iYear)
+				F.Intrinsic.Control.If(V.Local.iMonth,=,"Entire Year")
+					'Customer has a record for year, and all months is selected to update budget value
+					F.Intrinsic.Control.For(V.Local.iTemp,1,12,1)
+						F.Intrinsic.Control.SelectCase(V.Local.iTemp)
+							F.Intrinsic.Control.Case(1)
+								F.Intrinsic.String.Build("UPDATE GAB_4110_CUST_BDGT SET BDGT_JAN = {0} WHERE CUSTOMER = '{1}' AND YEAR = '{2}'",V.Local.fBudget,V.Global.sCustomer,V.Local.iYear,V.Local.sSQLUPD)
+								F.ODBC.Connection!conx.Execute(V.Local.sSQLUPD)
+							F.Intrinsic.Control.Case(2)
+								F.Intrinsic.String.Build("UPDATE GAB_4110_CUST_BDGT SET BDGT_FEB = {0} WHERE CUSTOMER = '{1}' AND YEAR = '{2}'",V.Local.fBudget,V.Global.sCustomer,V.Local.iYear,V.Local.sSQLUPD)
+								F.ODBC.Connection!conx.Execute(V.Local.sSQLUPD)
+							F.Intrinsic.Control.Case(3)
+								F.Intrinsic.String.Build("UPDATE GAB_4110_CUST_BDGT SET BDGT_MAR = {0} WHERE CUSTOMER = '{1}' AND YEAR = '{2}'",V.Local.fBudget,V.Global.sCustomer,V.Local.iYear,V.Local.sSQLUPD)
+								F.ODBC.Connection!conx.Execute(V.Local.sSQLUPD)
+							F.Intrinsic.Control.Case(4)
+								F.Intrinsic.String.Build("UPDATE GAB_4110_CUST_BDGT SET BDGT_APR = {0} WHERE CUSTOMER = '{1}' AND YEAR = '{2}'",V.Local.fBudget,V.Global.sCustomer,V.Local.iYear,V.Local.sSQLUPD)
+								F.ODBC.Connection!conx.Execute(V.Local.sSQLUPD)
+							F.Intrinsic.Control.Case(5)
+								F.Intrinsic.String.Build("UPDATE GAB_4110_CUST_BDGT SET BDGT_MAY = {0} WHERE CUSTOMER = '{1}' AND YEAR = '{2}'",V.Local.fBudget,V.Global.sCustomer,V.Local.iYear,V.Local.sSQLUPD)
+								F.ODBC.Connection!conx.Execute(V.Local.sSQLUPD)
+							F.Intrinsic.Control.Case(6)
+								F.Intrinsic.String.Build("UPDATE GAB_4110_CUST_BDGT SET BDGT_JUN = {0} WHERE CUSTOMER = '{1}' AND YEAR = '{2}'",V.Local.fBudget,V.Global.sCustomer,V.Local.iYear,V.Local.sSQLUPD)
+								F.ODBC.Connection!conx.Execute(V.Local.sSQLUPD)
+							F.Intrinsic.Control.Case(7)
+								F.Intrinsic.String.Build("UPDATE GAB_4110_CUST_BDGT SET BDGT_JUL = {0} WHERE CUSTOMER = '{1}' AND YEAR = '{2}'",V.Local.fBudget,V.Global.sCustomer,V.Local.iYear,V.Local.sSQLUPD)
+								F.ODBC.Connection!conx.Execute(V.Local.sSQLUPD)
+							F.Intrinsic.Control.Case(8)
+								F.Intrinsic.String.Build("UPDATE GAB_4110_CUST_BDGT SET BDGT_AUG = {0} WHERE CUSTOMER = '{1}' AND YEAR = '{2}'",V.Local.fBudget,V.Global.sCustomer,V.Local.iYear,V.Local.sSQLUPD)
+								F.ODBC.Connection!conx.Execute(V.Local.sSQLUPD)
+							F.Intrinsic.Control.Case(9)
+								F.Intrinsic.String.Build("UPDATE GAB_4110_CUST_BDGT SET BDGT_SEP = {0} WHERE CUSTOMER = '{1}' AND YEAR = '{2}'",V.Local.fBudget,V.Global.sCustomer,V.Local.iYear,V.Local.sSQLUPD)
+								F.ODBC.Connection!conx.Execute(V.Local.sSQLUPD)
+							F.Intrinsic.Control.Case(10)
+								F.Intrinsic.String.Build("UPDATE GAB_4110_CUST_BDGT SET BDGT_OCT = {0} WHERE CUSTOMER = '{1}' AND YEAR = '{2}'",V.Local.fBudget,V.Global.sCustomer,V.Local.iYear,V.Local.sSQLUPD)
+								F.ODBC.Connection!conx.Execute(V.Local.sSQLUPD)
+							F.Intrinsic.Control.Case(11)
+								F.Intrinsic.String.Build("UPDATE GAB_4110_CUST_BDGT SET BDGT_NOV = {0} WHERE CUSTOMER = '{1}' AND YEAR = '{2}'",V.Local.fBudget,V.Global.sCustomer,V.Local.iYear,V.Local.sSQLUPD)
+								F.ODBC.Connection!conx.Execute(V.Local.sSQLUPD)
+							F.Intrinsic.Control.Case(12)
+								F.Intrinsic.String.Build("UPDATE GAB_4110_CUST_BDGT SET BDGT_DEC = {0} WHERE CUSTOMER = '{1}' AND YEAR = '{2}'",V.Local.fBudget,V.Global.sCustomer,V.Local.iYear,V.Local.sSQLUPD)
+								F.ODBC.Connection!conx.Execute(V.Local.sSQLUPD)
+						F.Intrinsic.Control.EndSelect
+					F.Intrinsic.Control.Next(V.Local.iTemp)
+					F.Intrinsic.UI.Msgbox("Successfully updated.")
+					F.Intrinsic.UI.CloseWaitDialog
+					F.Intrinsic.Control.ExitSub
+				F.Intrinsic.Control.Else
+					'save budget value in appropriate month
+					F.Intrinsic.String.Build("UPDATE GAB_4110_CUST_BDGT SET {0} = {1} WHERE CUSTOMER = '{2}' AND YEAR = '{3}'",V.Local.sMonth,V.Local.fBudget,V.Global.sCustomer,V.Local.iYear,V.Local.sSQLUPD)
+					F.ODBC.Connection!conx.Execute(V.Local.sSQLUPD)
+					F.Intrinsic.UI.CloseWaitDialog
+					F.Intrinsic.UI.Msgbox("Successfully updated.")
+					F.Intrinsic.UI.CloseWaitDialog
+					F.Intrinsic.Control.ExitSub
+				F.Intrinsic.Control.EndIf
+			F.Intrinsic.Control.EndIf
+			F.ODBC.conx!rstBdgt.MoveNext
+		F.Intrinsic.Control.Loop
+		'Customer has no budget set for year specified
+		F.Intrinsic.Control.If(V.Local.iMonth,=,"Entire Year")
+			'Create year record and cycle through months setting values
+			F.Intrinsic.Control.For(V.Local.iTemp,1,12,1)
+				F.Intrinsic.Control.SelectCase(V.Local.iTemp)
+					F.Intrinsic.Control.Case(1)
+						F.Intrinsic.String.Build("INSERT INTO GAB_4110_CUST_BDGT (CUSTOMER, YEAR, BDGT_JAN) VALUES ('{0}', '{1}', {2})",V.Global.sCustomer,V.Local.iYear,V.Local.fBudget,V.Local.sSQLUPD)
+						F.ODBC.Connection!conx.Execute(V.Local.sSQLUPD)
+					F.Intrinsic.Control.Case(2)
+						F.Intrinsic.String.Build("UPDATE GAB_4110_CUST_BDGT SET BDGT_FEB = {0} WHERE CUSTOMER = '{1}' AND YEAR = '{2}'",V.Local.fBudget,V.Global.sCustomer,V.Local.iYear,V.Local.sSQLUPD)
+						F.ODBC.Connection!conx.Execute(V.Local.sSQLUPD)
+					F.Intrinsic.Control.Case(3)
+						F.Intrinsic.String.Build("UPDATE GAB_4110_CUST_BDGT SET BDGT_MAR = {0} WHERE CUSTOMER = '{1}' AND YEAR = '{2}'",V.Local.fBudget,V.Global.sCustomer,V.Local.iYear,V.Local.sSQLUPD)
+						F.ODBC.Connection!conx.Execute(V.Local.sSQLUPD)
+					F.Intrinsic.Control.Case(4)
+						F.Intrinsic.String.Build("UPDATE GAB_4110_CUST_BDGT SET BDGT_APR = {0} WHERE CUSTOMER = '{1}' AND YEAR = '{2}'",V.Local.fBudget,V.Global.sCustomer,V.Local.iYear,V.Local.sSQLUPD)
+						F.ODBC.Connection!conx.Execute(V.Local.sSQLUPD)
+					F.Intrinsic.Control.Case(5)
+						F.Intrinsic.String.Build("UPDATE GAB_4110_CUST_BDGT SET BDGT_MAY = {0} WHERE CUSTOMER = '{1}' AND YEAR = '{2}'",V.Local.fBudget,V.Global.sCustomer,V.Local.iYear,V.Local.sSQLUPD)
+						F.ODBC.Connection!conx.Execute(V.Local.sSQLUPD)
+					F.Intrinsic.Control.Case(6)
+						F.Intrinsic.String.Build("UPDATE GAB_4110_CUST_BDGT SET BDGT_JUN = {0} WHERE CUSTOMER = '{1}' AND YEAR = '{2}'",V.Local.fBudget,V.Global.sCustomer,V.Local.iYear,V.Local.sSQLUPD)
+						F.ODBC.Connection!conx.Execute(V.Local.sSQLUPD)
+					F.Intrinsic.Control.Case(7)
+						F.Intrinsic.String.Build("UPDATE GAB_4110_CUST_BDGT SET BDGT_JUL = {0} WHERE CUSTOMER = '{1}' AND YEAR = '{2}'",V.Local.fBudget,V.Global.sCustomer,V.Local.iYear,V.Local.sSQLUPD)
+						F.ODBC.Connection!conx.Execute(V.Local.sSQLUPD)
+					F.Intrinsic.Control.Case(8)
+						F.Intrinsic.String.Build("UPDATE GAB_4110_CUST_BDGT SET BDGT_AUG = {0} WHERE CUSTOMER = '{1}' AND YEAR = '{2}'",V.Local.fBudget,V.Global.sCustomer,V.Local.iYear,V.Local.sSQLUPD)
+						F.ODBC.Connection!conx.Execute(V.Local.sSQLUPD)
+					F.Intrinsic.Control.Case(9)
+						F.Intrinsic.String.Build("UPDATE GAB_4110_CUST_BDGT SET BDGT_SEP = {0} WHERE CUSTOMER = '{1}' AND YEAR = '{2}'",V.Local.fBudget,V.Global.sCustomer,V.Local.iYear,V.Local.sSQLUPD)
+						F.ODBC.Connection!conx.Execute(V.Local.sSQLUPD)
+					F.Intrinsic.Control.Case(10)
+						F.Intrinsic.String.Build("UPDATE GAB_4110_CUST_BDGT SET BDGT_OCT = {0} WHERE CUSTOMER = '{1}' AND YEAR = '{2}'",V.Local.fBudget,V.Global.sCustomer,V.Local.iYear,V.Local.sSQLUPD)
+						F.ODBC.Connection!conx.Execute(V.Local.sSQLUPD)
+					F.Intrinsic.Control.Case(11)
+						F.Intrinsic.String.Build("UPDATE GAB_4110_CUST_BDGT SET BDGT_NOV = {0} WHERE CUSTOMER = '{1}' AND YEAR = '{2}'",V.Local.fBudget,V.Global.sCustomer,V.Local.iYear,V.Local.sSQLUPD)
+						F.ODBC.Connection!conx.Execute(V.Local.sSQLUPD)
+					F.Intrinsic.Control.Case(12)
+						F.Intrinsic.String.Build("UPDATE GAB_4110_CUST_BDGT SET BDGT_DEC = {0} WHERE CUSTOMER = '{1}' AND YEAR = '{2}'",V.Local.fBudget,V.Global.sCustomer,V.Local.iYear,V.Local.sSQLUPD)
+						F.ODBC.Connection!conx.Execute(V.Local.sSQLUPD)
+				F.Intrinsic.Control.EndSelect
+			F.Intrinsic.Control.Next(V.Local.iTemp)
+			F.Intrinsic.UI.Msgbox("Successfully updated.")
+			F.Intrinsic.UI.CloseWaitDialog
+			F.Intrinsic.Control.ExitSub
+		F.Intrinsic.Control.Else
+			F.Intrinsic.String.Build("INSERT INTO GAB_4110_CUST_BDGT (CUSTOMER, YEAR, {0}) VALUES ('{1}', '{2}', {3})", V.Local.sMonth,V.Global.sCustomer,V.Local.iYear,V.Local.fBudget,V.Local.sSQLUPD)
+			F.ODBC.Connection!conx.Execute(V.Local.sSQLUPD)
+			F.Intrinsic.UI.CloseWaitDialog
+			F.Intrinsic.UI.Msgbox("Successfully updated.")
+			F.Intrinsic.Control.ExitSub
+		F.Intrinsic.Control.EndIf
+	F.Intrinsic.Control.EndIf
+
+F.Intrinsic.Control.EndIf			
+
+F.Intrinsic.Control.ExitSub
+
+Program.Sub.cmdUpdate_Click.End
+
+Program.Sub.Return_Budget.Start
+F.Intrinsic.UI.SleepMS(100)
+
+V.Local.sSQL.Declare(String)
+V.Local.sTemp.Declare(String)
+V.Local.sMonth.Declare(String)
+'V.Local.iMonth.Declare(String)
+V.Local.sYear.Declare(String)
+
+V.Local.sMonth.Set(V.Screen.frmBudget!ddlMonth.Text)
+'V.Local.iMonth.Set(V.Screen.frmBudget!ddlMonth.Text)
+V.Local.sYear.Set(V.Screen.frmBudget!ddlYear.Text)
+
+
+F.Intrinsic.Control.If(V.Local.sYear,<>,"")
+	F.Intrinsic.Control.AndIf(V.Local.sMonth,<>,"")
+		F.Intrinsic.String.Build("SELECT * FROM GAB_4110_CUST_BDGT WHERE CUSTOMER = '{0}' AND YEAR = '{1}'",V.Global.sCustomer,V.Local.sYear,V.Local.sSQL)
+		F.ODBC.Connection!conx.OpenLocalRecordsetRO("rstBdgt",V.Local.sSQL)
+		F.Intrinsic.Control.If(V.ODBC.conx!rstBdgt.EOF,=,True)
+			Gui.frmBudget.txtBudget.Text("")
+			F.Intrinsic.Control.ExitSub
+		F.Intrinsic.Control.EndIf
+		F.Intrinsic.Control.SelectCase(V.Local.sMonth)
+			F.Intrinsic.Control.Case("January")
+				Gui.frmBudget.txtBudget.Text(V.ODBC.conx!rstBdgt.FieldVal!BDGT_JAN)
+			F.Intrinsic.Control.Case("February")
+				Gui.frmBudget.txtBudget.Text(V.ODBC.conx!rstBdgt.FieldVal!BDGT_FEB)
+			F.Intrinsic.Control.Case("March")
+				Gui.frmBudget.txtBudget.Text(V.ODBC.conx!rstBdgt.FieldVal!BDGT_MAR)
+			F.Intrinsic.Control.Case("April")
+				Gui.frmBudget.txtBudget.Text(V.ODBC.conx!rstBdgt.FieldVal!BDGT_APR)
+			F.Intrinsic.Control.Case("May")
+				Gui.frmBudget.txtBudget.Text(V.ODBC.conx!rstBdgt.FieldVal!BDGT_MAY)
+			F.Intrinsic.Control.Case("June")
+				Gui.frmBudget.txtBudget.Text(V.ODBC.conx!rstBdgt.FieldVal!BDGT_JUN)
+			F.Intrinsic.Control.Case("July")
+				Gui.frmBudget.txtBudget.Text(V.ODBC.conx!rstBdgt.FieldVal!BDGT_JUL)
+			F.Intrinsic.Control.Case("August")
+				Gui.frmBudget.txtBudget.Text(V.ODBC.conx!rstBdgt.FieldVal!BDGT_AUG)
+			F.Intrinsic.Control.Case("September")
+				Gui.frmBudget.txtBudget.Text(V.ODBC.conx!rstBdgt.FieldVal!BDGT_SEP)
+			F.Intrinsic.Control.Case("October")
+				Gui.frmBudget.txtBudget.Text(V.ODBC.conx!rstBdgt.FieldVal!BDGT_OCT)
+			F.Intrinsic.Control.Case("November")
+				Gui.frmBudget.txtBudget.Text(V.ODBC.conx!rstBdgt.FieldVal!BDGT_NOV)
+			F.Intrinsic.Control.Case("December")
+				Gui.frmBudget.txtBudget.Text(V.ODBC.conx!rstBdgt.FieldVal!BDGT_DEC)
+		F.Intrinsic.Control.EndSelect
+
+F.Intrinsic.Control.EndIf
+
+Program.Sub.Return_Budget.End
+
+Program.Sub.Comments.Start
+${$0$}$GAB_CUST_BUDGET$}$SUPERVSR$}$05/25/2016 3:08:10 PM$}$False
+${$3$}$0$}$$}$0$}$-1$}$$}$12:00:00 AM$}$Customer Master Script 3 button will launch program
+Program will accept Year (drop down), Month(drop down), and Budget (text field) values. 
+Data is saved in GAB_####_CUST_BDGT table
+
+Created by: Phillip Grekstas
+Date Created: 05/25/2016
+Program.Sub.Comments.End
